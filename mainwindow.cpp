@@ -35,10 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->inputGamma->setValue(0.1);
     ui->inputBeta->setValue(0.2);
     ui->inputDimension->setValue(10);
-    ui->inputDiffusionS->setValue(0.01);
-    ui->inputDiffusionI->setValue(0.01);
-    ui->inputDiffusionR->setValue(0.01);
-    ui->inputh->setValue(1.00);
+    ui->inputDiffusionS->setValue(1);
+    ui->inputDiffusionI->setValue(1);
+    ui->inputDiffusionR->setValue(1);
 
     ui->inputAgentCollisionRadius->setValue(5.00);
     ui->inputAgentArea->setValue(50.00);
@@ -48,6 +47,17 @@ MainWindow::MainWindow(QWidget *parent)
     // Dimension = 10
     // => Seitenlänge pro Zelle 0.7km
     // Hotspotradius [0, 0.35km]
+
+    // 42k / 10x10 Dimension = 420 pro Zelle
+    // 1% * 420 = 42Personen im Hotspot
+
+    // Gesucht : X (Radius vom Hotspot)
+    // Gegeben :    42 Personen im Hotspot
+    //              Y  Kollisionsradius
+    //              Z  AVG Abstand zwischen zwei Personen im Hotspot
+    // Z = 42Personen / Y
+    // TODO sinnvollen radius ableiten
+
     ui->inputAgentHotspotRadius->setValue(0.1);
 
     setFixedSize(1000,1000);
@@ -88,7 +98,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label9->setStyleSheet("QLabel { color: white; }");
     ui->label10->setStyleSheet("QLabel { color: white; }");
     ui->label11->setStyleSheet("QLabel { color: white; }");
-    ui->label12->setStyleSheet("QLabel { color: white; }");
 
     ui->label14->setStyleSheet("QLabel { color: white; }");
     ui->label15->setStyleSheet("QLabel { color: white; }");
@@ -292,7 +301,6 @@ void MainWindow::createComparePlot() {
     QLineSeries *series1 = new QLineSeries();
     QLineSeries *series2 = new QLineSeries();
 
-
     series1->setName(fileName1);
     series2->setName(fileName2);
 
@@ -317,13 +325,14 @@ void MainWindow::createComparePlot() {
 
     QValueAxis *axisX = new QValueAxis();
     axisX->setTitleText("Iteration");
+    axisX->setLabelFormat("%.0f");  // Nur ganze Zahlen anzeigen
     chart->addAxis(axisX, Qt::AlignBottom);
     series1->attachAxis(axisX);
     series2->attachAxis(axisX);
 
     QValueAxis *axisY = new QValueAxis();
     axisY->setTitleText("Propotion of infected people");
-    axisY->setRange(0, 1);
+    axisY->setRange(0, 0.5);
     chart->addAxis(axisY, Qt::AlignLeft);
     series1->attachAxis(axisY);
     series2->attachAxis(axisY);
@@ -599,7 +608,7 @@ void MainWindow::initializeCompareList() {
     }
 }
 
-void MainWindow::openDialog(int durationSeconds, bool agentBased, int S, int I, int R, double beta, double gamma, int dimension, double area, double collisionRadius, double moveToHotspot, double maxMobilityPerDay, double h, double ds, double di, double dr, int iterations) {
+void MainWindow::openDialog(int durationSeconds, bool agentBased, int S, int I, int R, double beta, double gamma, int dimension, double area, double collisionRadius, double moveToHotspot, double maxMobilityPerDay, double ds, double di, double dr, int iterations, double hotspotRadius) {
     QDialog dialog(this);
     Ui::Dialog ui;
     ui.setupUi(&dialog);
@@ -640,11 +649,11 @@ void MainWindow::openDialog(int durationSeconds, bool agentBased, int S, int I, 
         ui.dialogInputMaxMobilityPerDay->setValue(maxMobilityPerDay);
         ui.dialogInputMoveToHotspot->setValue(moveToHotspot);
         ui.dialogInputCollisionRadius->setValue(collisionRadius);
+        ui.dialogHotspotRadius->setValue(hotspotRadius);
         ui.dialogInputArea->setValue(area);
 
     } else {
         ui.paginationDialog->setCurrentWidget(ui.sirPageDialog);
-        ui.dialogInputH->setValue(h);
         ui.dialogInputDS->setValue(ds);
         ui.dialogInputDI->setValue(di);
         ui.dialogInputDR->setValue(dr);
@@ -764,7 +773,6 @@ void MainWindow::startSimulation() {
     double diffusionS = ui->inputDiffusionS->value();
     double diffusionI = ui->inputDiffusionI->value();
     double diffusionR = ui->inputDiffusionR->value();
-    double h = ui->inputh->value();
     double collisionRadius = ui->inputAgentCollisionRadius->value();
     double moveToHotspot = ui->inputAgentMoveToHotspot->value();
     double area = ui->inputAgentArea->value();
@@ -782,7 +790,7 @@ void MainWindow::startSimulation() {
     ui->labelIteration->setText(QString("Iteration: 0"));
     ui->progressContainer->show();
 
-    tmp = new Simulation(beta, gamma, S, I, R, diffusionS, diffusionI, diffusionR, dimension, h, collisionRadius, area, moveToHotspot, maxMobility, hotspotRadius);
+    tmp = new Simulation(beta, gamma, S, I, R, diffusionS, diffusionI, diffusionR, dimension, collisionRadius, area, moveToHotspot, maxMobility, hotspotRadius);
     bool agentBased = (ui->selectModel->currentText() == "Agentbased");
 
     simulationFuture = QtConcurrent::run([this, agentBased]() {
@@ -790,12 +798,12 @@ void MainWindow::startSimulation() {
     });
 
     // Überwachung
-    connect(&simulationWatcher, &QFutureWatcher<void>::finished, this, [this,agentBased, S, I, R, beta, gamma, dimension, diffusionS, diffusionI, diffusionR, h, collisionRadius, moveToHotspot, area, maxMobility]() {
+    connect(&simulationWatcher, &QFutureWatcher<void>::finished, this, [this,agentBased, S, I, R, beta, gamma, dimension, diffusionS, diffusionI, diffusionR, collisionRadius, moveToHotspot, area, maxMobility, hotspotRadius]() {
         qDebug() << "Simulation beendet!";
         this->stopSimulation();
         qint64 elapsedSeconds = simulationTimer.elapsed() / 1000;
         int iterations = ui->labelIteration->text().split(" ").last().toInt();
-        this->openDialog(elapsedSeconds,agentBased, S, I, R, beta, gamma, dimension, area, collisionRadius, moveToHotspot, maxMobility, h, diffusionS, diffusionI, diffusionR, iterations);
+        this->openDialog(elapsedSeconds,agentBased, S, I, R, beta, gamma, dimension, area, collisionRadius, moveToHotspot, maxMobility, diffusionS, diffusionI, diffusionR, iterations, hotspotRadius);
     });
     simulationWatcher.setFuture(simulationFuture);
 }

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <algorithm>
 #include <QDebug>
+#include <random>
+#include <cmath>
 
 Agent::Agent(float startX, float startY, float mobility, AgentState state, float scale, float maxMobility)
     : x(std::max(0.0f, static_cast<float>(startX))), y(std::max(0.0f, static_cast<float>(startY))), mobilityFactor(mobility), state(state), scale(scale), maxMobility(maxMobility), maxDistance(maxMobility / scale) {
@@ -18,23 +20,26 @@ float Agent::getY() const {
 
 
 void Agent::move(float maxX, float maxY) {
-    // Random number between -0.5 and 0.5 and multiply it with mobilityFactor
-    // Normalverteilt
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * M_PI);  // Zufallswinkel von 0° bis 360°
+    static std::uniform_real_distribution<float> radiusDist(0.0f, maxDistance); // Zufälliger Abstand im Kreis
 
-    // max 5km pro Tag
-    // scale km / einheit
-    float deltaX = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * maxDistance * mobilityFactor;
-    float deltaY = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * 2.0f * maxDistance * mobilityFactor;
+    float angle = angleDist(gen);
+    float distance = radiusDist(gen) * mobilityFactor;
+
+    float deltaX = std::cos(angle) * distance;
+    float deltaY = std::sin(angle) * distance;
 
     x += deltaX;
     y += deltaY;
 
-    // Reflektieren vom Rand
-    if (x < 0.0f) { x = -x; }
-    else if (x > maxX) { x = 2 * maxX - x; }
+    // Reflexion
+    if (x < 0) { x = -x; }
+    if (x > maxX) { x = 2 * maxX - x; }
 
-    if (y < 0.0f) { y = -y; }
-    else if (y > maxY) { y = 2 * maxY - y; }
+    if (y < 0) { y = -y; }
+    if (y > maxY) { y = 2 * maxY - y; }
 }
 
 

@@ -27,7 +27,7 @@ private:
     std::atomic<bool> pauseFlag = false;
 
 public:
-    Simulation(double beta, double gamma, int initialS, int initialI, int initialR, double DI, double DS, double DR, int gridSize, int h, double collisionRadius, double area, double moveToHotspot, double maxMobility, double hotspotRadius);
+    Simulation(double beta, double gamma, int initialS, int initialI, int initialR, double DI, double DS, double DR, int gridSize, double collisionRadius, double area, double moveToHotspot, double maxMobility, double hotspotRadius);
     ~Simulation();
 
     void run(bool agentBased, QLabel* t, QProgressBar* s, QProgressBar* i, QProgressBar* r);

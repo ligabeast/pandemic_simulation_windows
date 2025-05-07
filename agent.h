@@ -15,7 +15,6 @@ private:
     float mobilityFactor;
     AgentState state;
     float scale;
-    float maxMobility;
     const float maxDistance;
 
     // Tag der Erkrankung erfassen und daraus die Genesung ableiten -> Bsp. nach 14 Tagen

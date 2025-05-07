@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <vector>
 
-SIRModel::SIRModel(double beta, double gamma, double initialS, double initialI, double initialR, int gridSize, double DI, double DS, double DR, double h)
-    : gridSize(gridSize), beta(beta), gamma(gamma), D_I(DI), D_S(DS), D_R(DR), h(h) {
+SIRModel::SIRModel(double beta, double gamma, double initialS, double initialI, double initialR, int gridSize, double DI, double DS, double DR)
+    : gridSize(gridSize), beta(beta), gamma(gamma), D_I(DI), D_S(DS), D_R(DR) {
     grid = std::vector<std::vector<Cell>>(gridSize, std::vector<Cell>(gridSize));
 
     int totalCells = gridSize * gridSize;
@@ -52,7 +52,10 @@ SIRModel::SIRModel(double beta, double gamma, double initialS, double initialI, 
 
     }
 
-    // TODO Hotspots
+    // h tatsächlicher Abstand zwischen zwei Gitterpunkten
+    // h = Seitenlänge im selbstdefiniertem koordinatensystem / GridDimension
+
+    this->h = 1.0 / static_cast<double>(gridSize - 1);
 
     printGridState();
 }
@@ -61,14 +64,6 @@ bool SIRModel::iterate(double dt) {
     std::vector<std::vector<Cell>> newGrid = grid;
 
     // Anpassen an die Skalierung des Grids
-
-    // h tatsächlicher Abstand zwischen zwei Gitterpunkten
-    // GridDimension = 10
-    // km per unit 0.134164
-    // Total 100x100
-    // 0.134164 * 100 = 13.4164 km
-    // 13.4164 / 10 = 1.34164 km
-    // h = 1.34164 km
     for (int x = 0; x < gridSize; ++x) {
         for (int y = 0; y < gridSize; ++y) {
             Cell &cell = grid[x][y];

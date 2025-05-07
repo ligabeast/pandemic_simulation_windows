@@ -20,7 +20,7 @@ private:
     double h;
 
 public:
-    SIRModel(double beta, double gamma, double initialS, double initialI, double initialR, int gridSize, double DI, double DS, double DR, double h);
+    SIRModel(double beta, double gamma, double initialS, double initialI, double initialR, int gridSize, double DI, double DS, double DR);
 
     bool iterate(double dt);
 

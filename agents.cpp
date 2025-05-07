@@ -7,6 +7,8 @@
 #include <vector>
 #include <omp.h>
 #include <unordered_map>
+#include <random>
+#include <cmath>
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -64,7 +66,7 @@ void Agents::initializeAgents(int initialS, int initialI, int initialR, float sc
     for (int i = 0; i < initialS + initialI + initialR; ++i) {
         float startX = static_cast<float>(rand()) / RAND_MAX * maxX;
         float startY = static_cast<float>(rand()) / RAND_MAX * maxY;
-        float mobility = static_cast<float>(rand()) / RAND_MAX * (10 / scale);
+        float mobility = static_cast<float>(rand()) / RAND_MAX;
 
         AgentState state;
         if (i < initialI) {
@@ -93,7 +95,7 @@ void Agents::printAgentGrid() const {
     }
 }
 
-void Agents::moveAgents(float beta, float stepSize, int& susceptibleCount, int& infectedCount, int& recoveredCount) {
+void Agents::moveAgents(float beta, int& susceptibleCount, int& infectedCount, int& recoveredCount) {
 #pragma omp parallel for
     for (auto& agent : agents) {
         int cellIndex = getCellIndex(agent->getX(), agent->getY());
@@ -101,32 +103,17 @@ void Agents::moveAgents(float beta, float stepSize, int& susceptibleCount, int& 
 
         // Mit einer kleinen Wahrscheinlichkeit bewegt sich der Agent zu einer zufälligen Position im Hotspot
         if (static_cast<float>(rand()) / RAND_MAX < this->moveToHotspot) {
-            float randomRadius = static_cast<float>(rand()) / RAND_MAX * targetHotspot->radius;
-            float randomAngle = static_cast<float>(rand()) / RAND_MAX * 2 * M_PI;
-            float targetX = targetHotspot->centerX + randomRadius * std::cos(randomAngle);
-            float targetY = targetHotspot->centerY + randomRadius * std::sin(randomAngle);
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            static std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * M_PI);  // Zufallswinkel von 0° bis 360°
+            static std::uniform_real_distribution<float> radiusDist(0.0f, targetHotspot->radius); // Zufälliger Abstand im Kreis
 
-            // Bewege den Agenten schrittweise in Richtung der zufälligen Position
-            float dx = targetX - agent->getX();
-            float dy = targetY - agent->getY();
-            float distance = std::sqrt(dx * dx + dy * dy);
+            float angle = angleDist(gen);
+            float distance = radiusDist(gen);
 
-            while (distance > stepSize) {
-                float stepX = stepSize * dx / distance;
-                float stepY = stepSize * dy / distance;
+            float targetX = targetHotspot->centerX + distance * std::cos(angle);
+            float targetY = targetHotspot->centerY + distance * std::sin(angle);
 
-                agent->setX(agent->getX() + stepX);
-                agent->setY(agent->getY() + stepY);
-
-                dx = targetX - agent->getX();
-                dy = targetY - agent->getY();
-                distance = std::sqrt(dx * dx + dy * dy);
-
-                // Kollisionen prüfen
-                checkCollisionsInCell(agent, susceptibleCount, infectedCount, recoveredCount, beta);
-            }
-
-            // Setze den Agenten auf die endgültige Position, wenn nahe genug
             agent->setX(targetX);
             agent->setY(targetY);
         } else {

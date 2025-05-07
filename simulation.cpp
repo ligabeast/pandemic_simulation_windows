@@ -6,8 +6,8 @@
 #include <QThread>
 #include <QLabel>
 
-Simulation::Simulation(double beta, double gamma, int initialS, int initialI, int initialR, double DI, double DS, double DR, int gridSize, int h, double collisionRadius, double area, double moveToHotspot, double maxMobility, double hotspotRadius)
-    : sirmodel(beta, gamma, initialS, initialI, initialR, gridSize, DI, DS, DR, h),
+Simulation::Simulation(double beta, double gamma, int initialS, int initialI, int initialR, double DI, double DS, double DR, int gridSize, double collisionRadius, double area, double moveToHotspot, double maxMobility, double hotspotRadius)
+    : sirmodel(beta, gamma, initialS, initialI, initialR, gridSize, DI, DS, DR),
     initialS(initialS), initialI(initialI), initialR(initialR), beta(beta), gamma(gamma), iteration(0) {
     const int totalAgents = initialS + initialI + initialR;
     // Reale Fläche Deutschlands: ca. 360.000 km²
@@ -60,7 +60,7 @@ void Simulation::run(bool agentBased, QLabel* iterationLabel, QProgressBar* s, Q
                 QThread::sleep(1);  // 1 Sekunde warten, dann erneut prüfen
             }
 
-            agents->moveAgents(beta, 0.1, susceptibleCount, infectedCount, recoveredCount);
+            agents->moveAgents(beta, susceptibleCount, infectedCount, recoveredCount);
 
             agents->checkCollisions(susceptibleCount, infectedCount, recoveredCount, beta);
             // Genesung

@@ -14,7 +14,6 @@ private:
     // bool isMobile; -> unused yet. Could be used if one Agent should stay at the same position
     float mobilityFactor;
     AgentState state;
-    float scale;
     const float maxDistance;
 
     // Tag der Erkrankung erfassen und daraus die Genesung ableiten -> Bsp. nach 14 Tagen

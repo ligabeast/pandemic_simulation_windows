@@ -7,7 +7,7 @@
 #include <cmath>
 
 Agent::Agent(float startX, float startY, float mobility, AgentState state, float scale, float maxMobility)
-    : x(std::max(0.0f, static_cast<float>(startX))), y(std::max(0.0f, static_cast<float>(startY))), mobilityFactor(mobility), state(state), scale(scale), maxMobility(maxMobility), maxDistance(maxMobility / scale) {
+    : x(std::max(0.0f, static_cast<float>(startX))), y(std::max(0.0f, static_cast<float>(startY))), mobilityFactor(mobility), state(state), maxDistance(maxMobility / scale) {
 }
 
 float Agent::getX() const {

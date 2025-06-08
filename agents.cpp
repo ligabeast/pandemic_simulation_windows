@@ -19,7 +19,7 @@
 // Dichte = 420.000 / 1.800 = 233.33 pro km²
 // Mittlerer Abstand = sqrt(1 / 233.33) = 0.065km = 65m
 
-Agents::Agents(int totalAgents, float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float moveToHotspot, float maxMobility, float hotspotRadiusKm)
+Agents::Agents(float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float moveToHotspot, float maxMobility, float hotspotRadiusKm)
     : maxX(maxX), maxY(maxY), gridDimension(gridDimension), collisionDistance(collisionRadius / (scale * 1000.0f)), moveToHotspot(moveToHotspot)  {
     cellSize = maxX / gridDimension;
     std::cout << "Cell Size: " << cellSize << std::endl;
@@ -153,36 +153,6 @@ void Agents::checkCollisions(int& susceptibleCount, int& infectedCount, int& rec
                             susceptibleCount--;
                             infectedCount++;
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-void Agents::checkCollisionsInCell(Agent* movingAgent, int& susceptibleCount, int& infectedCount, int& recoveredCount, float beta) {
-    int cellIndex = getCellIndex(movingAgent->getX(), movingAgent->getY());
-
-    if (agentGrid.find(cellIndex) != agentGrid.end()) {
-        for (auto& otherAgent : agentGrid[cellIndex]) {
-            if (movingAgent == otherAgent) continue;
-
-            float dx = movingAgent->getX() - otherAgent->getX();
-            float dy = movingAgent->getY() - otherAgent->getY();
-            float distance = std::sqrt(dx * dx + dy * dy);
-
-            if (distance < collisionDistance) {
-                if (movingAgent->getState() == AgentState::Infected && otherAgent->getState() == AgentState::Susceptible) {
-                    if (static_cast<float>(rand()) / RAND_MAX < beta) {
-                        otherAgent->setState(AgentState::Infected);
-                        susceptibleCount--;
-                        infectedCount++;
-                    }
-                } else if (otherAgent->getState() == AgentState::Infected && movingAgent->getState() == AgentState::Susceptible) {
-                    if (static_cast<float>(rand()) / RAND_MAX < beta) {
-                        movingAgent->setState(AgentState::Infected);
-                        susceptibleCount--;
-                        infectedCount++;
                     }
                 }
             }

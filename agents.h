@@ -28,11 +28,10 @@ private:
     std::unordered_map<int, Hotspot*> hotspotGrid;
     void initializeHotspots(float scale, float radiusKm);
     void printHotspots() const;
-    void checkCollisionsInCell(Agent* movingAgent, int& susceptibleCount, int& infectedCount, int& recoveredCount, float beta);
     void printAgentGrid() const;
 
 public:
-    Agents(int totalAgents, float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float moveToHotspot, float maxMobility, float hotspotRadius);
+    Agents(float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float moveToHotspot, float maxMobility, float hotspotRadius);
     ~Agents();
     void initializeAgents(int initialS, int initialI, int initialR, float scale, float maxMobility);
     void moveAgents(float beta, int& susceptibleCount, int& infectedCount, int& recoveredCount);

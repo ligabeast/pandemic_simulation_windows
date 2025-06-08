@@ -29,7 +29,7 @@ Simulation::Simulation(double beta, double gamma, int initialS, int initialI, in
 
     std::cout << "km per unit " << scale << std::endl;
 
-    agents = new Agents(totalAgents, maxX, maxY, scale, gridSize, initialS, initialI, initialR, collisionRadius, moveToHotspot, maxMobility, hotspotRadius);
+    agents = new Agents(maxX, maxY, scale, gridSize, initialS, initialI, initialR, collisionRadius, moveToHotspot, maxMobility, hotspotRadius);
 }
 
 Simulation::~Simulation() {

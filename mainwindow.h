@@ -35,7 +35,7 @@ private:
     void pauseSimulation();
     void continueSimulation();
     void stopSimulation();
-    void openDialog(int durationMinutes, bool agentBased, int S, int I, int R, double beta, double gamma, int dimension, double area, double collisionRadius, double moveToHotspot, double maxMobilityPerDay, double ds, double di, double dr, int iterations, double hotspotRadius);
+    void openDialog(int durationMinutes, bool agentBased, int S, int I, int R, double beta, double gamma, int dimension, double area, double collisionRadius, double averageMobilityPerDay, double ds, double di, double dr, int iterations);
     void averageDistanceChanged();
     void updateUI();
 

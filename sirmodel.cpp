@@ -3,8 +3,10 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <QDebug>
 
-SIRModel::SIRModel(double beta, double gamma, double initialS, double initialI, double initialR, int gridSize, double DI, double DS, double DR)
+
+SIRModel::SIRModel(double beta, double gamma, double initialS, double initialI, double initialR, int gridSize, double DI, double DS, double DR, double area)
     : gridSize(gridSize), beta(beta), gamma(gamma), D_I(DI), D_S(DS), D_R(DR) {
     grid = std::vector<std::vector<Cell>>(gridSize, std::vector<Cell>(gridSize));
 
@@ -41,27 +43,25 @@ SIRModel::SIRModel(double beta, double gamma, double initialS, double initialI, 
     }
 
 
+    int targetMid = (gridSize / 2) - 1;
+    grid[targetMid][targetMid].I += initialI;
 
-    int remainingInfected = static_cast<int>(initialI);
-    while (remainingInfected > 0) {
-        int randomX = std::rand() % gridSize;
-        int randomY = std::rand() % gridSize;
-
-        grid[randomX][randomY].I += 1.0;
-        remainingInfected--;
-
-    }
 
     // h tatsächlicher Abstand zwischen zwei Gitterpunkten
     // h = Seitenlänge im selbstdefiniertem koordinatensystem / GridDimension
 
-    this->h = 1.0 / static_cast<double>(gridSize - 1);
+    double sideLength = std::sqrt(area); // in km
+    this->h = sideLength / static_cast<double>(gridSize - 1);
 
     printGridState();
 }
 
 bool SIRModel::iterate(double dt) {
     std::vector<std::vector<Cell>> newGrid = grid;
+
+    double previousS = this->getSusceptible();
+    double previousI = this->getInfected();
+    double previousR = this->getRecovered();
 
     // Anpassen an die Skalierung des Grids
     for (int x = 0; x < gridSize; ++x) {
@@ -75,17 +75,21 @@ bool SIRModel::iterate(double dt) {
             double infectionPart = beta * cell.S * cell.I / localN;
             double recoveryPart = gamma * cell.I;
 
+            // qDebug() << "Infect=" << infectionPart << " Recover=" << recoveryPart << " deltaI=" << (infectionPart - recoveryPart);
+
             double diffusionS = D_S * computeDiffusion(x, y, [](const Cell &c) { return c.S; }, this->h);
             double diffusionI = D_I * computeDiffusion(x, y, [](const Cell &c) { return c.I; }, this->h);
             double diffusionR = D_R * computeDiffusion(x, y, [](const Cell &c) { return c.R; }, this->h);
 
             double deltaS = (-infectionPart + diffusionS) * dt;
             double deltaI = (infectionPart - recoveryPart + diffusionI) * dt;
-            double deltaR = (recoveryPart + diffusionR) * dt;
+            double deltaR = (recoveryPart + diffusionR) * dt ;
 
             newCell.S = std::max(0.0, cell.S + deltaS);
             newCell.I = std::max(0.0, cell.I + deltaI);
             newCell.R = std::max(0.0, cell.R + deltaR);
+
+            if (newCell.I < 1e-6) newCell.I = 0;
 
             // Normalisierung
             double total = newCell.S + newCell.I + newCell.R;
@@ -99,16 +103,25 @@ bool SIRModel::iterate(double dt) {
 
     grid = newGrid;
 
-    double totalS = this->getSusceptible();
-    double totalI = this->getInfected();
-    double totalR = this->getRecovered();
+    double newS = getSusceptible();
+    double newI = getInfected();
+    double newR = getRecovered();
 
-    // Änderungsrate zu klein -> break
+    double deltaS = std::abs(newS - previousS);
+    double deltaI = std::abs(newI - previousI);
+    double deltaR = std::abs(newR - previousR);
 
-    if (totalR / (totalS + totalI + totalR) >= 0.95) {
+    // qDebug() << "S=" << newS << "I=" << newI << "R=" << newR << "dI=" << deltaI;
+
+    double total = newS + newI + newR;
+    if ((deltaS + deltaI + deltaR) / total < 1e-6) {
+        return false;
+    }
+
+    if (newR / (newS + newI + newR) >= 0.95) {
         return false; // > 95% der Bevölkerung ist immun
     }
-    if (totalI < 0.5) {
+    if (newI < 0.5) {
         return false; // < 0.5% der Bevölkerung ist infiziert
     }
 

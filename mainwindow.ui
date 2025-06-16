@@ -60,6 +60,9 @@
         <height>1000</height>
        </size>
       </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QFrame" name="OptionsBackground">
       <property name="geometry">
@@ -71,10 +74,7 @@
        </rect>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <widget class="QComboBox" name="selectModel">
        <property name="geometry">
@@ -137,9 +137,6 @@
        </property>
        <property name="text">
         <string>Select Model</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
        </property>
       </widget>
       <widget class="QLabel" name="label2">
@@ -255,11 +252,14 @@
          <height>30</height>
         </rect>
        </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
        <property name="maximum">
         <double>1.000000000000000</double>
        </property>
        <property name="singleStep">
-        <double>0.010000000000000</double>
+        <double>0.001000000000000</double>
        </property>
       </widget>
       <widget class="QDoubleSpinBox" name="inputGamma">
@@ -344,6 +344,9 @@
            <height>30</height>
           </rect>
          </property>
+         <property name="decimals">
+          <number>5</number>
+         </property>
          <property name="maximum">
           <double>100.000000000000000</double>
          </property>
@@ -360,6 +363,9 @@
            <height>30</height>
           </rect>
          </property>
+         <property name="decimals">
+          <number>5</number>
+         </property>
          <property name="maximum">
           <double>100.000000000000000</double>
          </property>
@@ -375,6 +381,9 @@
            <width>71</width>
            <height>30</height>
           </rect>
+         </property>
+         <property name="decimals">
+          <number>5</number>
          </property>
          <property name="maximum">
           <double>100.000000000000000</double>
@@ -411,73 +420,6 @@
         </widget>
        </widget>
        <widget class="QWidget" name="agentPage">
-        <widget class="QLabel" name="label14">
-         <property name="geometry">
-          <rect>
-           <x>120</x>
-           <y>80</y>
-           <width>101</width>
-           <height>30</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>moveToHotspot</string>
-         </property>
-        </widget>
-        <widget class="QDoubleSpinBox" name="inputAgentMoveToHotspot">
-         <property name="geometry">
-          <rect>
-           <x>120</x>
-           <y>110</y>
-           <width>91</width>
-           <height>30</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <double>0.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>1.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.010000000000000</double>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label15">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>10</y>
-           <width>101</width>
-           <height>30</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Area (km²)</string>
-         </property>
-        </widget>
-        <widget class="QDoubleSpinBox" name="inputAgentArea">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>40</y>
-           <width>91</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <double>1.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>10000.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>1.000000000000000</double>
-         </property>
-         <property name="value">
-          <double>1.000000000000000</double>
-         </property>
-        </widget>
         <widget class="QLabel" name="averageDistanceText">
          <property name="geometry">
           <rect>
@@ -532,10 +474,10 @@
           <string>Collision radius (m)</string>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="inputAgentMaxMobility">
+        <widget class="QDoubleSpinBox" name="inputAgentMeanMobility">
          <property name="geometry">
           <rect>
-           <x>240</x>
+           <x>120</x>
            <y>110</y>
            <width>91</width>
            <height>30</height>
@@ -545,45 +487,7 @@
           <enum>Qt::WheelFocus</enum>
          </property>
          <property name="locale">
-          <locale language="German" country="Belgium"/>
-         </property>
-         <property name="minimum">
-          <double>0.010000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>100.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label17">
-         <property name="geometry">
-          <rect>
-           <x>240</x>
-           <y>80</y>
-           <width>131</width>
-           <height>30</height>
-          </rect>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::WheelFocus</enum>
-         </property>
-         <property name="text">
-          <string>maxMobilityPerDay (km)</string>
-         </property>
-        </widget>
-        <widget class="QDoubleSpinBox" name="inputAgentHotspotRadius">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>180</y>
-           <width>91</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="cursor">
-          <cursorShape>ArrowCursor</cursorShape>
+          <locale language="German" country="Germany"/>
          </property>
          <property name="decimals">
           <number>3</number>
@@ -592,26 +496,26 @@
           <double>0.001000000000000</double>
          </property>
          <property name="maximum">
-          <double>10000.000000000000000</double>
+          <double>100.000000000000000</double>
          </property>
          <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-         <property name="value">
-          <double>1.000000000000000</double>
+          <double>0.001000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="label21">
+        <widget class="QLabel" name="label17">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>150</y>
-           <width>111</width>
+           <x>120</x>
+           <y>80</y>
+           <width>131</width>
            <height>30</height>
           </rect>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="text">
-          <string>Hotspot radius (km)</string>
+          <string>avgMobilityPerDay (km)</string>
          </property>
         </widget>
        </widget>
@@ -747,9 +651,6 @@
         <property name="text">
          <string>S</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
        </widget>
        <widget class="QLabel" name="label19">
         <property name="geometry">
@@ -767,9 +668,6 @@
         </property>
         <property name="text">
          <string>I</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
        <widget class="QLabel" name="label20">
@@ -789,9 +687,6 @@
         <property name="text">
          <string>R</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
        </widget>
        <widget class="QLabel" name="labelIteration">
         <property name="geometry">
@@ -809,9 +704,6 @@
         </property>
         <property name="text">
          <string>Iteration: 0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
        <widget class="QProgressBar" name="progressBarS">
@@ -862,6 +754,41 @@
          <bool>false</bool>
         </property>
        </widget>
+      </widget>
+      <widget class="QLabel" name="label15">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>350</y>
+         <width>101</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Area (km²)</string>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="inputAgentArea">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>380</y>
+         <width>91</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
       </widget>
      </widget>
     </widget>
@@ -1027,9 +954,6 @@
         <property name="text">
          <string>Iteration: 0</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
        </widget>
        <widget class="QPushButton" name="playPauseButton">
         <property name="geometry">
@@ -1058,6 +982,9 @@
         </property>
        </widget>
        <widget class="QSlider" name="speedSlider">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>450</x>
@@ -1065,6 +992,14 @@
           <width>81</width>
           <height>20</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="tracking">
+         <bool>true</bool>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

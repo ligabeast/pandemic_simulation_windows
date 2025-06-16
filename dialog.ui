@@ -35,7 +35,7 @@
     </rect>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::NoButton</set>
+    <set>QDialogButtonBox::StandardButton::NoButton</set>
    </property>
   </widget>
   <widget class="QLabel" name="label">
@@ -50,18 +50,17 @@
    <property name="font">
     <font>
      <pointsize>12</pointsize>
-     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
    <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
+    <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
    <property name="text">
     <string>Simulation Results</string>
    </property>
    <property name="alignment">
-    <set>Qt::AlignCenter</set>
+    <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="dialogTime">
@@ -540,7 +539,7 @@
       <string>Collision radius (m)</string>
      </property>
     </widget>
-    <widget class="QDoubleSpinBox" name="dialogInputMaxMobilityPerDay">
+    <widget class="QDoubleSpinBox" name="dialogInputMeanMobilityPerDay">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -553,7 +552,7 @@
       </rect>
      </property>
      <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
+      <enum>Qt::FocusPolicy::NoFocus</enum>
      </property>
      <property name="locale">
       <locale language="German" country="Belgium"/>
@@ -578,7 +577,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>maxMobilityPerDay (km)</string>
+      <string>averageMobilityPerDay (km)</string>
      </property>
     </widget>
     <widget class="QLabel" name="label22">

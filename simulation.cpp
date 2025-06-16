@@ -6,8 +6,8 @@
 #include <QThread>
 #include <QLabel>
 
-Simulation::Simulation(double beta, double gamma, int initialS, int initialI, int initialR, double DI, double DS, double DR, int gridSize, double collisionRadius, double area, double moveToHotspot, double maxMobility, double hotspotRadius)
-    : sirmodel(beta, gamma, initialS, initialI, initialR, gridSize, DI, DS, DR),
+Simulation::Simulation(double beta, double gamma, int initialS, int initialI, int initialR, double DI, double DS, double DR, int gridSize, double collisionRadius, double area, double avgDistance)
+    : sirmodel(beta, gamma, initialS, initialI, initialR, gridSize, DI, DS, DR, area),
     initialS(initialS), initialI(initialI), initialR(initialR), beta(beta), gamma(gamma), iteration(0) {
     const int totalAgents = initialS + initialI + initialR;
     // Reale Fläche Deutschlands: ca. 360.000 km²
@@ -29,7 +29,7 @@ Simulation::Simulation(double beta, double gamma, int initialS, int initialI, in
 
     std::cout << "km per unit " << scale << std::endl;
 
-    agents = new Agents(maxX, maxY, scale, gridSize, initialS, initialI, initialR, collisionRadius, moveToHotspot, maxMobility, hotspotRadius);
+    agents = new Agents(maxX, maxY, scale, gridSize, initialS, initialI, initialR, collisionRadius, avgDistance);
 }
 
 Simulation::~Simulation() {
@@ -127,7 +127,6 @@ void Simulation::run(bool agentBased, QLabel* iterationLabel, QProgressBar* s, Q
                 std::cout << "Simulation pausiert..." << std::endl;
                 QThread::sleep(1);  // 1 Sekunde warten, dann erneut prüfen
             }
-
             const bool result = this->sirmodel.iterate(0.01);
             if (!result) {
                 std::cout << "No significant change -> break" << std::endl;

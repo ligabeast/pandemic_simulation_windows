@@ -19,12 +19,11 @@
 // Dichte = 420.000 / 1.800 = 233.33 pro km²
 // Mittlerer Abstand = sqrt(1 / 233.33) = 0.065km = 65m
 
-Agents::Agents(float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float moveToHotspot, float maxMobility, float hotspotRadiusKm)
-    : maxX(maxX), maxY(maxY), gridDimension(gridDimension), collisionDistance(collisionRadius / (scale * 1000.0f)), moveToHotspot(moveToHotspot)  {
+Agents::Agents(float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float avgDistance)
+    : maxX(maxX), maxY(maxY), gridDimension(gridDimension), collisionDistance(collisionRadius / (scale * 1000.0f)) {
     cellSize = maxX / gridDimension;
     std::cout << "Cell Size: " << cellSize << std::endl;
-    initializeAgents(initialS, initialI, initialR, scale, maxMobility);
-    initializeHotspots(scale, hotspotRadiusKm);
+    initializeAgents(initialS, initialI, initialR, scale, avgDistance, gridDimension);
     //debugAgentDistribution();
     updateGrid();
     printAgentGrid();
@@ -37,10 +36,6 @@ Agents::Agents(float maxX, float maxY, float scale, int gridDimension, int initi
 Agents::~Agents() {
     for (auto agent : agents) {
         delete agent;
-    }
-
-    for (auto& entry : hotspotGrid) {
-        delete entry.second;
     }
 }
 
@@ -61,23 +56,26 @@ void Agents::debugAgentDistribution() const {
     std::cout << "Agents in center: " << centerCount << "\n";
 }
 
+void Agents::initializeAgents(int initialS, int initialI, int initialR, float scale, float avgDistance, int gridDimension) {
+    float cellWidth = maxX / gridDimension;
+    float cellHeight = maxY / gridDimension;
 
-void Agents::initializeAgents(int initialS, int initialI, int initialR, float scale, float maxMobility) {
-    for (int i = 0; i < initialS + initialI + initialR; ++i) {
+    int centerIndex = gridDimension / 2 - 1;
+    float cellX = centerIndex * cellWidth;
+    float cellY = centerIndex * cellHeight;
+
+    for (int i = 0; i < initialS + initialR; ++i) {
         float startX = static_cast<float>(rand()) / RAND_MAX * maxX;
         float startY = static_cast<float>(rand()) / RAND_MAX * maxY;
-        float mobility = static_cast<float>(rand()) / RAND_MAX;
 
-        AgentState state;
-        if (i < initialI) {
-            state = AgentState::Infected;
-        } else if (i < initialI + initialS) {
-            state = AgentState::Susceptible;
-        } else {
-            state = AgentState::Recovered;
-        }
+        AgentState state = (i < initialS) ? AgentState::Susceptible : AgentState::Recovered;
+        agents.push_back(new Agent(startX, startY, state, scale, avgDistance));
+    }
 
-        agents.push_back(new Agent(startX, startY, mobility, state, scale, maxMobility));
+    for (int i = 0; i < initialI; ++i) {
+        float startX = cellX + static_cast<float>(rand()) / RAND_MAX * cellWidth;
+        float startY = cellY + static_cast<float>(rand()) / RAND_MAX * cellHeight;
+        agents.push_back(new Agent(startX, startY, AgentState::Infected, scale, avgDistance));
     }
 }
 
@@ -98,30 +96,7 @@ void Agents::printAgentGrid() const {
 void Agents::moveAgents(float beta, int& susceptibleCount, int& infectedCount, int& recoveredCount) {
 #pragma omp parallel for
     for (auto& agent : agents) {
-        int cellIndex = getCellIndex(agent->getX(), agent->getY());
-        Hotspot* targetHotspot = hotspotGrid[cellIndex];
-
-        // Mit einer kleinen Wahrscheinlichkeit bewegt sich der Agent zu einer zufälligen Position im Hotspot
-        if (static_cast<float>(rand()) / RAND_MAX < this->moveToHotspot) {
-            static std::random_device rd;
-            static std::mt19937 gen(rd());
-            static std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * M_PI);  // Zufallswinkel von 0° bis 360°
-            static std::uniform_real_distribution<float> radiusDist(0.0f, targetHotspot->radius); // Zufälliger Abstand im Kreis
-
-            float angle = angleDist(gen);
-            float distance = radiusDist(gen);
-
-            float targetX = targetHotspot->centerX + distance * std::cos(angle);
-            float targetY = targetHotspot->centerY + distance * std::sin(angle);
-
-            agent->setX(targetX);
-            agent->setY(targetY);
-        } else {
-            // Normale Bewegung innerhalb der Zelle
-            agent->move(maxX, maxY);
-            int cellIndex = getCellIndex(agent->getX(), agent->getY());
-            agentGrid[cellIndex].push_back(agent);
-        }
+        agent->move(maxX, maxY);
     }
     updateGrid();
 }
@@ -189,38 +164,6 @@ int Agents::getCellIndex(float x, float y) const {
 
     return gridX * gridDimension + gridY;
 }
-
-
-void Agents::printHotspots() const {
-    std::cout << "Grid Dimension: " << gridDimension << "\n";
-    std::cout << "Cell Size: " << cellSize << "\n";
-
-    for (const auto& entry : hotspotGrid) {
-        int cellIndex = entry.first;
-        const Hotspot* hotspot = entry.second;
-    }
-}
-
-
-
-void Agents::initializeHotspots(float scale, float radiusKM) {
-    // Radius eines Hotspots
-    // 1 / scale = 3km
-    const float radius = radiusKM / scale;
-
-    for (int x = 0; x < gridDimension; x++) {
-        for (int y = 0; y < gridDimension; y++) {
-            Hotspot* tmp = new Hotspot();
-            tmp->centerX = x * cellSize + cellSize / 2;
-            tmp->centerY = y * cellSize + cellSize / 2;
-            tmp->radius = radius;
-
-            int cellIndex = getCellIndex(tmp->centerX, tmp->centerY);
-            hotspotGrid[cellIndex] = tmp;
-        }
-    }
-}
-
 
 void Agents::updateGrid() {
     agentGrid.clear();

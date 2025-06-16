@@ -21,19 +21,14 @@ private:
     float maxX;
     float maxY;
     float collisionDistance;
-    float moveToHotspot;
 
     int getCellIndex(float x, float y) const;
-
-    std::unordered_map<int, Hotspot*> hotspotGrid;
-    void initializeHotspots(float scale, float radiusKm);
-    void printHotspots() const;
     void printAgentGrid() const;
 
 public:
-    Agents(float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float moveToHotspot, float maxMobility, float hotspotRadius);
+    Agents(float maxX, float maxY, float scale, int gridDimension, int initialS, int initialI, int initialR, float collisionRadius, float avgDistance);
     ~Agents();
-    void initializeAgents(int initialS, int initialI, int initialR, float scale, float maxMobility);
+    void initializeAgents(int initialS, int initialI, int initialR, float scale, float maxMobility, int gridDimension);
     void moveAgents(float beta, int& susceptibleCount, int& infectedCount, int& recoveredCount);
     void checkCollisions(int& susceptibleCount, int& infectedCount, int& recoveredCount, float beta);
     void printAgents() const;

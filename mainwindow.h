@@ -29,7 +29,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
-    HeatmapAnimation* heatmap;
+    HeatmapAnimation* heatmap = nullptr;
 
     void startSimulation();
     void pauseSimulation();
@@ -41,7 +41,7 @@ private:
 
     void initializeFileList();
 
-    void startHeatmapAnimation(const QString file);
+    void startHeatmapAnimation(const QString& file);
 
     void createChart1(QVector<QLineSeries*> data);
     QVector<QLineSeries*> loadCSVDataChart1(const QString &filename);

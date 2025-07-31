@@ -156,17 +156,36 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->fileSelectButton, &QPushButton::clicked, [&]() {
         QListWidgetItem *selectedItem = ui->fileList->currentItem();
 
-        if (selectedItem) {
-            QString filePath = selectedItem->data(Qt::UserRole).toString();
-            qDebug() << "Ausgewählte Datei:" << filePath;
-            QVector tmp1 = loadCSVDataChart1(filePath);
-            createChart1(tmp1);
-            startHeatmapAnimation(filePath);
-
-        } else {
-            qDebug() << "Keine Datei ausgewählt!";
+        if (!selectedItem) {
+            qDebug() << "⚠️ Keine Datei ausgewählt!";
+            return;
         }
+
+        QString relativePath = selectedItem->data(Qt::UserRole).toString();
+        QString baseDir = QCoreApplication::applicationDirPath();
+        QString filePath = QDir(baseDir).filePath(relativePath);
+
+        qDebug() << "📄 Ausgewählte Datei:" << filePath;
+
+        if (!QFile::exists(filePath)) {
+            qDebug() << "❌ Datei existiert nicht!";
+            return;
+        }
+        qDebug() << "1";
+        QVector<QLineSeries*> tmp1 = loadCSVDataChart1(filePath);
+        qDebug() << "2";
+        if (tmp1.isEmpty()) {
+            qDebug() << "❗CSV enthält keine Daten oder konnte nicht gelesen werden!";
+            return;
+        }
+
+        createChart1(tmp1);
+        startHeatmapAnimation(filePath);
     });
+
+
+
+
 
     ui->progressContainer->hide();
     ui->progressBarS->setStyleSheet(
@@ -411,11 +430,24 @@ QVector<QPointF> MainWindow::loadInfectionData(const QString &filename) {
 
 
 
-void MainWindow::startHeatmapAnimation(const QString file) {
-    if(heatmap != nullptr){
-        delete heatmap;
+void MainWindow::startHeatmapAnimation(const QString& file) {
+    qDebug() << "test0";
+    if(this->heatmap != nullptr){
+        delete this->heatmap;
     }
-    heatmap = new HeatmapAnimation(ui->chartContainer2, ui->iterationLabelChart2, ui->playPauseButton, ui->restartButton, ui->speedSlider, file);
+    qDebug() << "test1";
+    if (!ui->chartContainer2) qDebug() << "❌ chartContainer2 ist nullptr";
+    if (!ui->iterationLabelChart2) qDebug() << "❌ iterationLabelChart2 ist nullptr";
+    if (!ui->playPauseButton) qDebug() << "❌ playPauseButton ist nullptr";
+    if (!ui->restartButton) qDebug() << "❌ restartButton ist nullptr";
+    if (!ui->speedSlider) qDebug() << "❌ speedSlider ist nullptr";
+    qDebug() << "test";
+    qDebug() << file;
+
+    heatmap = new HeatmapAnimation(ui->chartContainer2, ui->iterationLabelChart2,
+                                   ui->playPauseButton, ui->restartButton,
+                                   ui->speedSlider, file);
+
 }
 
 QVector<QLineSeries*> MainWindow::loadCSVDataChart1(const QString &filename) {
